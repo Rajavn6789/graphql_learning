@@ -9,15 +9,18 @@ const {
 
 
 const booksData = [
-  {id: '1', name: 'Name of the Wind', genre: 'Fantasy', authorId: '44'},
-  {id: '2', name: 'The Final Empire', genre: 'Fantasy', authorId: '55'},
-  {id: '3', name: 'The Long Earth', genre: 'Sci-Fi', authorId: '66'},
+  { name: 'Name of the Wind', genre: 'Fantasy', id: '1', authorId: '1' },
+  { name: 'The Final Empire', genre: 'Fantasy', id: '2', authorId: '2' },
+  { name: 'The Hero of Ages', genre: 'Fantasy', id: '4', authorId: '2' },
+  { name: 'The Long Earth', genre: 'Sci-Fi', id: '3', authorId: '3' },
+  { name: 'The Colour of Magic', genre: 'Fantasy', id: '5', authorId: '3' },
+  { name: 'The Light Fantastic', genre: 'Fantasy', id: '6', authorId: '3' }
 ];
 
 const authorsData = [
-  {id: '44', name: 'Patrick RothFuss', age: 44},
-  {id: '55', name: 'Brandon Sanderson', age: 42},
-  {id: '66', name: 'Terry Pratchett', age: 66},
+  { name: 'Patrick Rothfuss', age: 44, id: '1' },
+  { name: 'Brandon Sanderson', age: 42, id: '2' },
+  { name: 'Terry Pratchett', age: 66, id: '3' }
 ];
 
 /*
@@ -47,12 +50,30 @@ const bookType = new GraphQLObjectType({
   })
 });
 
+/*
+{
+  author(id: '123')
+  name
+  age
+  {
+    book
+  }
+}
+*/
+
 const authorType = new GraphQLObjectType({
   name: "Author",
   fields: () => ({
     id: { type: GraphQLString },
     name: { type: GraphQLString },
     age: { type: GraphQLInt },
+    book: {
+      type: bookType,
+      resolve(parent, args) {
+        console.log('parent', parent);
+        return booksData.find(obj => obj.authorId === parent.id);
+      }
+    }
   })
 });
 
