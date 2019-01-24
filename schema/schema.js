@@ -4,6 +4,7 @@ const {
   GraphQLObjectType,
   GraphQLString,
   GraphQLInt,
+  GraphQLList,
   GraphQLSchema,
 } = graphql;
 
@@ -56,7 +57,10 @@ const bookType = new GraphQLObjectType({
   name
   age
   {
-    book
+    book {
+      name
+      genre
+    }
   }
 }
 */
@@ -67,11 +71,10 @@ const authorType = new GraphQLObjectType({
     id: { type: GraphQLString },
     name: { type: GraphQLString },
     age: { type: GraphQLInt },
-    book: {
-      type: bookType,
+    books: {
+      type: new GraphQLList(bookType),
       resolve(parent, args) {
-        console.log('parent', parent);
-        return booksData.find(obj => obj.authorId === parent.id);
+        return booksData.filter(obj => obj.authorId === parent.id);
       }
     }
   })
@@ -94,6 +97,7 @@ const rootQuery = new GraphQLObjectType({
         id: { type: GraphQLString }
       },
       resolve(parent, args){
+        console.log('RootQueryType > book');
         return booksData.find(obj => obj.id === args.id);
       }
     },
@@ -103,10 +107,24 @@ const rootQuery = new GraphQLObjectType({
         id: { type: GraphQLString }
       },
       resolve(parent, args){
+        console.log('RootQueryType > author');
         return authorsData.find(obj => obj.id === args.id);
       }
     },
-
+    books: {
+      type: new GraphQLList(bookType),
+      resolve(parent, args){
+        console.log('RootQueryType > books');
+        return booksData;
+      }
+    },
+    authors: {
+      type: new GraphQLList(authorType),
+      resolve(parent, args){
+        console.log('RootQueryType > authors');
+        return authorsData;
+      }
+    },
   }
 });
 
