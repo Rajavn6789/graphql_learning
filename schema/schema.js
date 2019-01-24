@@ -20,6 +20,17 @@ const authorsData = [
   {id: '66', name: 'Terry Pratchett', age: 66},
 ];
 
+/*
+{
+  book(id: '123')
+  name
+  genre
+  {
+    author
+  }
+}
+*/
+
 const bookType = new GraphQLObjectType({
   name: "Book",
   fields: () => ({
@@ -47,11 +58,12 @@ const authorType = new GraphQLObjectType({
 
 /*
 {
-book(id: '123')
-name
-genre
+  book(id: '123')
+  name
+  genre
 }
 */
+
 const rootQuery = new GraphQLObjectType({
   name: "RootQueryType",
   fields: {
