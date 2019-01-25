@@ -1,7 +1,7 @@
 const graphql = require('graphql');
 const Book = require('../models/Book');
 const Author = require('../models/Author');
-
+const resolverFunc = require("../resolver/mutations");
 const {
   GraphQLObjectType,
   GraphQLString,
@@ -26,6 +26,7 @@ author
 
 const BookType = new GraphQLObjectType({
   name: "BookType",
+  description: 'A Book type in our application',
   fields: () => ({
     id: { type: GraphQLString },
     name: { type: GraphQLString },
@@ -55,6 +56,7 @@ genre
 
 const AuthorType = new GraphQLObjectType({
   name: "AuthorType",
+  description: 'An Author type in our application',
   fields: () => ({
     id: { type: GraphQLString },
     name: { type: GraphQLString },
@@ -116,23 +118,6 @@ const rootQuery = new GraphQLObjectType({
   }
 });
 
-async function addAuthor(parent, args) {
-  const author = await Author.findOne({ name: args.name });
-
-  let queryResult = null;
-  if(author) {
-    throw new GraphQLError('User already exist');
-  } else {
-        console.log('No User');
-        let author = new Author({
-          name: args.name,
-          age: args.age
-        });
-      queryResult = author.save();
-  }
-    return queryResult
-  }
-
 const Mutation = new GraphQLObjectType({
   name: 'Mutation',
   fields: {
@@ -142,7 +127,7 @@ const Mutation = new GraphQLObjectType({
         name: { type: GraphQLString },
         age: { type: GraphQLInt }
       },
-      resolve: (parent, args) => addAuthor(parent, args),
+      resolve: (parent, args) => resolverFunc.addAuthor(parent, args),
     },
     addBook: {
       type: BookType,
@@ -151,19 +136,12 @@ const Mutation = new GraphQLObjectType({
         genre: { type: new GraphQLNonNull(GraphQLString) },
         authorId: { type: new GraphQLNonNull(GraphQLID) }
       },
-      resolve(parent, args){
-        let book = new Book({
-          name: args.name,
-          genre: args.genre,
-          authorId: args.authorId
-        });
-        return book.save();
-      }
+      resolve: (parent, args) => resolverFunc.addBook(parent, args),
     }
   }
 });
 
 module.exports = new GraphQLSchema({
   query: rootQuery,
-  mutation: Mutation
-})
+  mutation: Mutation,
+});
