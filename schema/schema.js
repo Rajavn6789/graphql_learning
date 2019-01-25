@@ -1,5 +1,5 @@
 const graphql = require('graphql');
-const Book = require('../models/book');
+const Book = require('../models/Book');
 const Author = require('../models/Author');
 
 const {
@@ -10,6 +10,7 @@ const {
   GraphQLList,
   GraphQLSchema,
   GraphQLNonNull,
+  GraphQLError,
 } = graphql;
 
 /*
@@ -115,6 +116,23 @@ const rootQuery = new GraphQLObjectType({
   }
 });
 
+async function addAuthor(parent, args) {
+  const author = await Author.findOne({ name: args.name });
+
+  let queryResult = null;
+  if(author) {
+    throw new GraphQLError('User already exist');
+  } else {
+        console.log('No User');
+        let author = new Author({
+          name: args.name,
+          age: args.age
+        });
+      queryResult = author.save();
+  }
+    return queryResult
+  }
+
 const Mutation = new GraphQLObjectType({
   name: 'Mutation',
   fields: {
@@ -124,13 +142,7 @@ const Mutation = new GraphQLObjectType({
         name: { type: GraphQLString },
         age: { type: GraphQLInt }
       },
-      resolve(parent, args){
-        let author = new Author({
-          name: args.name,
-          age: args.age
-        });
-        return author.save();
-      }
+      resolve: (parent, args) => addAuthor(parent, args),
     },
     addBook: {
       type: BookType,
